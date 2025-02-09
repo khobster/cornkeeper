@@ -14,39 +14,40 @@
             padding: 20px;
         }
 
-        h2 {
-            font-size: 2rem;
-            margin-bottom: 10px;
+        h1 {
+            font-size: 2.5rem;
             text-transform: uppercase;
+            text-shadow: 2px 2px 0 black;
+            margin-bottom: 10px;
         }
 
         .scoreboard {
-            width: 80%;
-            max-width: 600px;
+            width: 90%;
+            max-width: 650px;
             margin: auto;
             background: black;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             color: yellow;
             text-align: center;
+            border: 6px solid black;
         }
 
         .score-row {
             display: flex;
             justify-content: space-between;
-            font-size: 1.8rem;
-            padding: 10px;
-            border-bottom: 2px solid yellow;
-        }
-
-        .team-name {
-            text-transform: uppercase;
+            align-items: center;
+            font-size: 2rem;
+            padding: 12px;
+            border-bottom: 4px solid yellow;
             font-weight: bold;
+            text-transform: uppercase;
         }
 
         .score {
-            font-size: 2rem;
+            font-size: 3rem;
             font-weight: bold;
+            text-shadow: 2px 2px 0 black;
         }
 
         .buttons {
@@ -55,15 +56,16 @@
 
         button {
             padding: 15px;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             font-weight: bold;
             background: yellow;
             color: black;
-            border: 3px solid black;
+            border: 4px solid black;
             cursor: pointer;
             margin: 5px;
-            border-radius: 5px;
+            border-radius: 8px;
             text-transform: uppercase;
+            text-shadow: 1px 1px 0 black;
         }
 
         button:hover {
@@ -78,7 +80,7 @@
 </head>
 <body>
 
-    <h2>🌽keeper</h2>
+    <h1>🌽keeper</h1>
 
     <!-- Game Setup -->
     <div id="setup">
@@ -90,17 +92,17 @@
     <!-- Scoreboard -->
     <div id="scoreboard" class="hidden scoreboard">
         <div class="score-row">
-            <span class="team-name" id="teamA"></span>
+            <span id="teamA"></span>
             <span class="score" id="scoreA">0</span>
         </div>
         <div class="score-row">
-            <span class="team-name" id="teamB"></span>
+            <span id="teamB"></span>
             <span class="score" id="scoreB">0</span>
         </div>
 
         <div class="buttons">
             <p><strong>Add Points:</strong></p>
-            <button onclick="updateScore('A', 1)">+1 <span id="btnTeamA"></span></button>
+            <button onclick="updateScore('A', 1)">+1</button>
             <button onclick="updateScore('A', 3)">+3</button>
             <button onclick="updateScore('A', 6)">+6</button>
             <button onclick="updateScore('A', 9)">+9</button>
@@ -110,7 +112,7 @@
             <button onclick="updateScore('A', -1)">-1</button>
 
             <p><strong>Add Points:</strong></p>
-            <button onclick="updateScore('B', 1)">+1 <span id="btnTeamB"></span></button>
+            <button onclick="updateScore('B', 1)">+1</button>
             <button onclick="updateScore('B', 3)">+3</button>
             <button onclick="updateScore('B', 6)">+6</button>
             <button onclick="updateScore('B', 9)">+9</button>
