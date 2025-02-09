@@ -13,7 +13,7 @@
         .hidden { display: none; }
         button {
             padding: 10px 15px;
-            margin: 10px;
+            margin: 5px;
             font-size: 16px;
             cursor: pointer;
         }
@@ -35,10 +35,33 @@
         <p><strong id="teamA"></strong>: <span id="scoreA">0</span></p>
         <p><strong id="teamB"></strong>: <span id="scoreB">0</span></p>
         
-        <button onclick="updateScore('A', 1)">+1 to <span id="btnTeamA"></span></button>
-        <button onclick="updateScore('A', -1)">-1 to <span id="btnTeamA"></span></button>
-        <button onclick="updateScore('B', 1)">+1 to <span id="btnTeamB"></span></button>
-        <button onclick="updateScore('B', -1)">-1 to <span id="btnTeamB"></span></button>
+        <div>
+            <p><strong>Add Points:</strong></p>
+            <button onclick="updateScore('A', 1)">+1 <span id="btnTeamA"></span></button>
+            <button onclick="updateScore('A', 3)">+3 <span id="btnTeamA"></span></button>
+            <button onclick="updateScore('A', 6)">+6 <span id="btnTeamA"></span></button>
+            <button onclick="updateScore('A', 9)">+9 <span id="btnTeamA"></span></button>
+            <button onclick="updateScore('A', 12)">+12 <span id="btnTeamA"></span></button>
+        </div>
+
+        <div>
+            <p><strong>Subtract Points:</strong></p>
+            <button onclick="updateScore('A', -1)">-1 <span id="btnTeamA"></span></button>
+        </div>
+
+        <div>
+            <p><strong>Add Points:</strong></p>
+            <button onclick="updateScore('B', 1)">+1 <span id="btnTeamB"></span></button>
+            <button onclick="updateScore('B', 3)">+3 <span id="btnTeamB"></span></button>
+            <button onclick="updateScore('B', 6)">+6 <span id="btnTeamB"></span></button>
+            <button onclick="updateScore('B', 9)">+9 <span id="btnTeamB"></span></button>
+            <button onclick="updateScore('B', 12)">+12 <span id="btnTeamB"></span></button>
+        </div>
+
+        <div>
+            <p><strong>Subtract Points:</strong></p>
+            <button onclick="updateScore('B', -1)">-1 <span id="btnTeamB"></span></button>
+        </div>
 
         <br>
         <button onclick="speakScore()">🔊 Speak Score</button>
@@ -49,7 +72,6 @@
     </div>
 
     <script>
-        // Load game if it exists
         window.onload = function() {
             if (localStorage.getItem("gameActive")) {
                 document.getElementById("setup").classList.add("hidden");
@@ -95,29 +117,31 @@
         }
 
         function speakScore() {
-    let teamA = localStorage.getItem("teamA_display");
-    let teamB = localStorage.getItem("teamB_display");
-    let scoreA = localStorage.getItem("scoreA");
-    let scoreB = localStorage.getItem("scoreB");
-    let message = `${teamA} has ${scoreA} points, and ${teamB} has ${scoreB} points.`;
+            let teamA = localStorage.getItem("teamA_display");
+            let teamB = localStorage.getItem("teamB_display");
+            let scoreA = parseInt(localStorage.getItem("scoreA")) || 0;
+            let scoreB = parseInt(localStorage.getItem("scoreB")) || 0;
 
-    let speech = new SpeechSynthesisUtterance(message);
-    
-    // Fetch available voices
-    let voices = speechSynthesis.getVoices();
-    
-    // Choose a British Female voice
-    speech.voice = voices.find(voice => voice.name.includes("Google UK English Female")) ||
-                   voices.find(voice => voice.name.includes("UK English")) ||
-                   voices[0]; // Fallback to default if unavailable
+            let firstTeam = scoreA >= scoreB ? teamA : teamB;
+            let firstScore = scoreA >= scoreB ? scoreA : scoreB;
+            let secondTeam = scoreA >= scoreB ? teamB : teamA;
+            let secondScore = scoreA >= scoreB ? scoreB : scoreA;
 
-    // Adjust tone & speed for a more natural sound
-    speech.pitch = 1.1;  // Slightly higher for a livelier tone
-    speech.rate = 0.9;   // Slightly slower for better enunciation
+            let message = `${firstTeam} ${firstScore}, ${secondTeam} ${secondScore}`;
 
-    speech.lang = "en-GB"; // British English accent
-    speechSynthesis.speak(speech);
-}
+            let speech = new SpeechSynthesisUtterance(message);
+            let voices = speechSynthesis.getVoices();
+
+            speech.voice = voices.find(voice => voice.name.includes("Google UK English Female")) ||
+                           voices.find(voice => voice.lang.includes("en-GB")) ||
+                           voices[0];
+
+            speech.pitch = 1.1;
+            speech.rate = 0.9;
+            speech.lang = "en-GB";
+
+            speechSynthesis.speak(speech);
+        }
 
         function resetGame() {
             localStorage.clear();
@@ -134,7 +158,7 @@
             recognition.continuous = false;
             recognition.interimResults = false;
             recognition.lang = "en-US";
-            
+
             recognition.onstart = function() {
                 document.getElementById("status").innerText = "Listening...";
             };
@@ -142,7 +166,6 @@
             recognition.onresult = function(event) {
                 let transcript = event.results[0][0].transcript.toLowerCase();
                 document.getElementById("status").innerText = `You said: "${transcript}"`;
-
                 processVoiceCommand(transcript);
             };
 
@@ -157,17 +180,9 @@
             let teamA = localStorage.getItem("teamA");
             let teamB = localStorage.getItem("teamB");
 
-            if (command.includes("add") || command.includes("plus")) {
-                let points = extractNumber(command);
-                if (command.includes(teamA)) updateScore("A", points);
-                if (command.includes(teamB)) updateScore("B", points);
-            } else if (command.includes("subtract") || command.includes("minus")) {
-                let points = extractNumber(command);
-                if (command.includes(teamA)) updateScore("A", -points);
-                if (command.includes(teamB)) updateScore("B", -points);
-            } else if (command.includes("what's the score") || command.includes("score")) {
-                speakScore();
-            }
+            let points = extractNumber(command);
+            if (command.includes(teamA)) updateScore("A", points);
+            if (command.includes(teamB)) updateScore("B", points);
         }
 
         function extractNumber(str) {
