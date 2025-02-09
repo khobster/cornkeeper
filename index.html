@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>🌽keeper - The Open Style</title>
     <style>
         body {
@@ -55,14 +55,21 @@
             margin-top: 10px;
         }
 
-        .team-buttons {
-            text-align: center;
+        .team-section {
             flex: 1;
+            text-align: center;
+        }
+
+        .team-label {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
         }
 
         button {
-            padding: 10px 15px;
-            font-size: 1.3rem;
+            padding: 15px;
+            font-size: 1.5rem;
             font-weight: bold;
             background: black;
             color: yellow;
@@ -71,7 +78,7 @@
             margin: 5px;
             border-radius: 8px;
             text-transform: uppercase;
-            width: 80%;
+            width: 90%;
         }
 
         button:hover {
@@ -110,14 +117,16 @@
 
         <!-- Buttons for each team -->
         <div class="button-container">
-            <div class="team-buttons">
-                <button onclick="updateScore('A', 1)">+1 <span id="btnTeamA"></span></button>
-                <button onclick="updateScore('A', -1)">-1 <span id="btnTeamA"></span></button>
+            <div class="team-section">
+                <div class="team-label" id="labelTeamA"></div>
+                <button onclick="updateScore('A', 1)">+1</button>
+                <button onclick="updateScore('A', -1)">-1</button>
             </div>
 
-            <div class="team-buttons">
-                <button onclick="updateScore('B', 1)">+1 <span id="btnTeamB"></span></button>
-                <button onclick="updateScore('B', -1)">-1 <span id="btnTeamB"></span></button>
+            <div class="team-section">
+                <div class="team-label" id="labelTeamB"></div>
+                <button onclick="updateScore('B', 1)">+1</button>
+                <button onclick="updateScore('B', -1)">-1</button>
             </div>
         </div>
 
@@ -156,12 +165,14 @@
         }
 
         function loadGame() {
-            document.getElementById("teamA").innerText = localStorage.getItem("teamA_display");
-            document.getElementById("teamB").innerText = localStorage.getItem("teamB_display");
+            let teamA = localStorage.getItem("teamA_display");
+            let teamB = localStorage.getItem("teamB_display");
+            document.getElementById("teamA").innerText = teamA;
+            document.getElementById("teamB").innerText = teamB;
+            document.getElementById("labelTeamA").innerText = teamA;
+            document.getElementById("labelTeamB").innerText = teamB;
             document.getElementById("scoreA").innerText = localStorage.getItem("scoreA");
             document.getElementById("scoreB").innerText = localStorage.getItem("scoreB");
-            document.getElementById("btnTeamA").innerText = localStorage.getItem("teamA_display");
-            document.getElementById("btnTeamB").innerText = localStorage.getItem("teamB_display");
         }
 
         function updateScore(team, points) {
@@ -181,53 +192,6 @@
             let speech = new SpeechSynthesisUtterance(message);
             speech.lang = "en-GB";
             speechSynthesis.speak(speech);
-        }
-
-        function startListening() {
-            if (!("webkitSpeechRecognition" in window)) {
-                alert("Speech recognition is not supported in your browser. Try using Chrome.");
-                return;
-            }
-
-            let recognition = new webkitSpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = "en-US";
-
-            recognition.onstart = function() {
-                document.getElementById("status").innerText = "Listening...";
-            };
-
-            recognition.onresult = function(event) {
-                let transcript = event.results[0][0].transcript.toLowerCase();
-                document.getElementById("status").innerText = `You said: "${transcript}"`;
-                processVoiceCommand(transcript);
-            };
-
-            recognition.onerror = function(event) {
-                document.getElementById("status").innerText = "Voice recognition error.";
-            };
-
-            recognition.start();
-        }
-
-        function processVoiceCommand(command) {
-            let teamA = localStorage.getItem("teamA");
-            let teamB = localStorage.getItem("teamB");
-            let points = extractNumber(command);
-
-            if (command.includes("add") || command.includes("plus")) {
-                if (command.includes(teamA)) updateScore("A", points);
-                if (command.includes(teamB)) updateScore("B", points);
-            } else if (command.includes("subtract") || command.includes("minus") || command.includes("take away")) {
-                if (command.includes(teamA)) updateScore("A", -points);
-                if (command.includes(teamB)) updateScore("B", -points);
-            }
-        }
-
-        function extractNumber(str) {
-            let numbers = str.match(/\d+/);
-            return numbers ? parseInt(numbers[0]) : 1;
         }
 
         function resetGame() {
