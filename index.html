@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌽keeper</title>
+    <style>
+        body {
+            font-family: Roboto, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .hidden { display: none; }
+        button {
+            padding: 10px 15px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Game Setup -->
+    <div id="setup">
+        <h2>Start a New Game</h2>
+        <input type="text" id="teamAName" placeholder="Enter Team A Name">
+        <input type="text" id="teamBName" placeholder="Enter Team B Name">
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <!-- Scoreboard -->
+    <div id="scoreboard" class="hidden">
+        <h2>Cornhole Scorekeeper</h2>
+        <p><strong id="teamA"></strong>: <span id="scoreA">0</span></p>
+        <p><strong id="teamB"></strong>: <span id="scoreB">0</span></p>
+        
+        <button onclick="updateScore('A', 1)">+1 to <span id="btnTeamA"></span></button>
+        <button onclick="updateScore('A', -1)">-1 to <span id="btnTeamA"></span></button>
+        <button onclick="updateScore('B', 1)">+1 to <span id="btnTeamB"></span></button>
+        <button onclick="updateScore('B', -1)">-1 to <span id="btnTeamB"></span></button>
+
+        <br>
+        <button onclick="speakScore()">🔊 Speak Score</button>
+        <button onclick="startListening()">🎤 Voice Input</button>
+        <button onclick="resetGame()">Reset Game</button>
+
+        <p id="status"></p>
+    </div>
+
+    <script>
+        // Load game if it exists
+        window.onload = function() {
+            if (localStorage.getItem("gameActive")) {
+                document.getElementById("setup").classList.add("hidden");
+                document.getElementById("scoreboard").classList.remove("hidden");
+                loadGame();
+            }
+        };
+
+        function startGame() {
+            let teamA = document.getElementById("teamAName").value.trim() || "Team A";
+            let teamB = document.getElementById("teamBName").value.trim() || "Team B";
+
+            localStorage.setItem("teamA", teamA.toLowerCase());
+            localStorage.setItem("teamB", teamB.toLowerCase());
+            localStorage.setItem("teamA_display", teamA);
+            localStorage.setItem("teamB_display", teamB);
+            localStorage.setItem("scoreA", 0);
+            localStorage.setItem("scoreB", 0);
+            localStorage.setItem("gameActive", true);
+
+            loadGame();
+            document.getElementById("setup").classList.add("hidden");
+            document.getElementById("scoreboard").classList.remove("hidden");
+        }
+
+        function loadGame() {
+            let teamADisplay = localStorage.getItem("teamA_display");
+            let teamBDisplay = localStorage.getItem("teamB_display");
+            document.getElementById("teamA").innerText = teamADisplay;
+            document.getElementById("teamB").innerText = teamBDisplay;
+            document.getElementById("btnTeamA").innerText = teamADisplay;
+            document.getElementById("btnTeamB").innerText = teamBDisplay;
+            document.getElementById("scoreA").innerText = localStorage.getItem("scoreA");
+            document.getElementById("scoreB").innerText = localStorage.getItem("scoreB");
+        }
+
+        function updateScore(team, points) {
+            let key = team === "A" ? "scoreA" : "scoreB";
+            let currentScore = parseInt(localStorage.getItem(key)) || 0;
+            let newScore = Math.max(0, currentScore + points); // No negative scores
+            localStorage.setItem(key, newScore);
+            document.getElementById(key).innerText = newScore;
+        }
+
+        function speakScore() {
+            let teamA = localStorage.getItem("teamA_display");
+            let teamB = localStorage.getItem("teamB_display");
+            let scoreA = localStorage.getItem("scoreA");
+            let scoreB = localStorage.getItem("scoreB");
+            let message = `${teamA} has ${scoreA} points, and ${teamB} has ${scoreB} points.`;
+            
+            let speech = new SpeechSynthesisUtterance(message);
+            speech.lang = "en-US";
+            speechSynthesis.speak(speech);
+        }
+
+        function resetGame() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        function startListening() {
+            if (!("webkitSpeechRecognition" in window)) {
+                alert("Speech recognition is not supported in your browser. Try using Chrome.");
+                return;
+            }
+
+            let recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = "en-US";
+            
+            recognition.onstart = function() {
+                document.getElementById("status").innerText = "Listening...";
+            };
+
+            recognition.onresult = function(event) {
+                let transcript = event.results[0][0].transcript.toLowerCase();
+                document.getElementById("status").innerText = `You said: "${transcript}"`;
+
+                processVoiceCommand(transcript);
+            };
+
+            recognition.onerror = function(event) {
+                document.getElementById("status").innerText = "Voice recognition error.";
+            };
+
+            recognition.start();
+        }
+
+        function processVoiceCommand(command) {
+            let teamA = localStorage.getItem("teamA");
+            let teamB = localStorage.getItem("teamB");
+
+            if (command.includes("add") || command.includes("plus")) {
+                let points = extractNumber(command);
+                if (command.includes(teamA)) updateScore("A", points);
+                if (command.includes(teamB)) updateScore("B", points);
+            } else if (command.includes("subtract") || command.includes("minus")) {
+                let points = extractNumber(command);
+                if (command.includes(teamA)) updateScore("A", -points);
+                if (command.includes(teamB)) updateScore("B", -points);
+            } else if (command.includes("what's the score") || command.includes("score")) {
+                speakScore();
+            }
+        }
+
+        function extractNumber(str) {
+            let numbers = str.match(/\d+/);
+            return numbers ? parseInt(numbers[0]) : 1;
+        }
+    </script>
+
+</body>
+</html>
