@@ -17,7 +17,7 @@
         h1 {
             font-size: 3rem;
             text-transform: uppercase;
-            text-shadow: 3px 3px 0 black;
+            letter-spacing: 2px;
             margin-bottom: 10px;
         }
 
@@ -47,7 +47,6 @@
         .score {
             font-size: 3rem;
             font-weight: bold;
-            text-shadow: 2px 2px 0 black;
         }
 
         .buttons {
@@ -65,7 +64,6 @@
             margin: 5px;
             border-radius: 8px;
             text-transform: uppercase;
-            text-shadow: 1px 1px 0 yellow;
         }
 
         button:hover {
@@ -169,29 +167,6 @@
             let newScore = Math.max(0, parseInt(localStorage.getItem(key)) + points);
             localStorage.setItem(key, newScore);
             document.getElementById(key).innerText = newScore;
-        }
-
-        function speakScore() {
-            let teamA = localStorage.getItem("teamA_display");
-            let teamB = localStorage.getItem("teamB_display");
-            let scoreA = parseInt(localStorage.getItem("scoreA")) || 0;
-            let scoreB = parseInt(localStorage.getItem("scoreB")) || 0;
-
-            let [firstTeam, firstScore, secondTeam, secondScore] =
-                scoreA >= scoreB ? [teamA, scoreA, teamB, scoreB] : [teamB, scoreB, teamA, scoreA];
-
-            let message = `${firstTeam} ${firstScore}, ${secondTeam} ${secondScore}`;
-            let speech = new SpeechSynthesisUtterance(message);
-            let voices = speechSynthesis.getVoices();
-
-            speech.voice = voices.find(voice => voice.name.includes("Google UK English Female")) ||
-                           voices.find(voice => voice.lang.includes("en-GB")) ||
-                           voices[0];
-
-            speech.pitch = 1.1;
-            speech.rate = 0.9;
-            speech.lang = "en-GB";
-            speechSynthesis.speak(speech);
         }
 
         function resetGame() {
