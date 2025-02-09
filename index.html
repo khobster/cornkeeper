@@ -182,6 +182,53 @@
             document.getElementById(key).innerText = newScore;
         }
 
+        function startListening() {
+            if (!("webkitSpeechRecognition" in window)) {
+                alert("Speech recognition is not supported in your browser. Try using Chrome.");
+                return;
+            }
+
+            let recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = "en-US";
+
+            recognition.onstart = function() {
+                document.getElementById("status").innerText = "Listening...";
+            };
+
+            recognition.onresult = function(event) {
+                let transcript = event.results[0][0].transcript.toLowerCase();
+                document.getElementById("status").innerText = `You said: "${transcript}"`;
+                processVoiceCommand(transcript);
+            };
+
+            recognition.onerror = function(event) {
+                document.getElementById("status").innerText = "Voice recognition error.";
+            };
+
+            recognition.start();
+        }
+
+        function processVoiceCommand(command) {
+            let teamA = localStorage.getItem("teamA");
+            let teamB = localStorage.getItem("teamB");
+            let points = extractNumber(command);
+
+            if (command.includes("add") || command.includes("plus")) {
+                if (command.includes(teamA)) updateScore("A", points);
+                if (command.includes(teamB)) updateScore("B", points);
+            } else if (command.includes("subtract") || command.includes("minus") || command.includes("take away")) {
+                if (command.includes(teamA)) updateScore("A", -points);
+                if (command.includes(teamB)) updateScore("B", -points);
+            }
+        }
+
+        function extractNumber(str) {
+            let numbers = str.match(/\d+/);
+            return numbers ? parseInt(numbers[0]) : 1;
+        }
+
         function speakScore() {
             let teamA = localStorage.getItem("teamA_display");
             let teamB = localStorage.getItem("teamB_display");
