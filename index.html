@@ -3,72 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌽keeper</title>
+    <title>🌽keeper - The Open Style</title>
     <style>
         body {
-            font-family: Roboto, sans-serif;
+            font-family: 'Arial Black', sans-serif;
             text-align: center;
-            margin: 20px;
+            background-color: #FFD700; /* Open Championship Yellow */
+            color: black;
+            margin: 0;
+            padding: 20px;
         }
-        .hidden { display: none; }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .scoreboard {
+            width: 80%;
+            max-width: 600px;
+            margin: auto;
+            background: black;
+            padding: 20px;
+            border-radius: 10px;
+            color: yellow;
+            text-align: center;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.8rem;
+            padding: 10px;
+            border-bottom: 2px solid yellow;
+        }
+
+        .team-name {
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .score {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .buttons {
+            margin-top: 20px;
+        }
+
         button {
-            padding: 10px 15px;
-            margin: 5px;
-            font-size: 16px;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: yellow;
+            color: black;
+            border: 3px solid black;
             cursor: pointer;
+            margin: 5px;
+            border-radius: 5px;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: black;
+            color: yellow;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
 
+    <h2>🌽keeper</h2>
+
     <!-- Game Setup -->
     <div id="setup">
-        <h2>Start a New Game</h2>
         <input type="text" id="teamAName" placeholder="Enter Team A Name">
         <input type="text" id="teamBName" placeholder="Enter Team B Name">
         <button onclick="startGame()">Start Game</button>
     </div>
 
     <!-- Scoreboard -->
-    <div id="scoreboard" class="hidden">
-        <h2>🌽keeper</h2>
-        <p><strong id="teamA"></strong>: <span id="scoreA">0</span></p>
-        <p><strong id="teamB"></strong>: <span id="scoreB">0</span></p>
-        
-        <div>
+    <div id="scoreboard" class="hidden scoreboard">
+        <div class="score-row">
+            <span class="team-name" id="teamA"></span>
+            <span class="score" id="scoreA">0</span>
+        </div>
+        <div class="score-row">
+            <span class="team-name" id="teamB"></span>
+            <span class="score" id="scoreB">0</span>
+        </div>
+
+        <div class="buttons">
             <p><strong>Add Points:</strong></p>
             <button onclick="updateScore('A', 1)">+1 <span id="btnTeamA"></span></button>
-            <button onclick="updateScore('A', 3)">+3 <span id="btnTeamA"></span></button>
-            <button onclick="updateScore('A', 6)">+6 <span id="btnTeamA"></span></button>
-            <button onclick="updateScore('A', 9)">+9 <span id="btnTeamA"></span></button>
-            <button onclick="updateScore('A', 12)">+12 <span id="btnTeamA"></span></button>
-        </div>
+            <button onclick="updateScore('A', 3)">+3</button>
+            <button onclick="updateScore('A', 6)">+6</button>
+            <button onclick="updateScore('A', 9)">+9</button>
+            <button onclick="updateScore('A', 12)">+12</button>
 
-        <div>
             <p><strong>Subtract Points:</strong></p>
-            <button onclick="updateScore('A', -1)">-1 <span id="btnTeamA"></span></button>
-        </div>
+            <button onclick="updateScore('A', -1)">-1</button>
 
-        <div>
             <p><strong>Add Points:</strong></p>
             <button onclick="updateScore('B', 1)">+1 <span id="btnTeamB"></span></button>
-            <button onclick="updateScore('B', 3)">+3 <span id="btnTeamB"></span></button>
-            <button onclick="updateScore('B', 6)">+6 <span id="btnTeamB"></span></button>
-            <button onclick="updateScore('B', 9)">+9 <span id="btnTeamB"></span></button>
-            <button onclick="updateScore('B', 12)">+12 <span id="btnTeamB"></span></button>
-        </div>
+            <button onclick="updateScore('B', 3)">+3</button>
+            <button onclick="updateScore('B', 6)">+6</button>
+            <button onclick="updateScore('B', 9)">+9</button>
+            <button onclick="updateScore('B', 12)">+12</button>
 
-        <div>
             <p><strong>Subtract Points:</strong></p>
-            <button onclick="updateScore('B', -1)">-1 <span id="btnTeamB"></span></button>
+            <button onclick="updateScore('B', -1)">-1</button>
+
+            <br>
+            <button onclick="speakScore()">🔊 Speak Score</button>
+            <button onclick="startListening()">🎤 Voice Input</button>
+            <button onclick="resetGame()">Reset Game</button>
+
+            <p id="status"></p>
         </div>
-
-        <br>
-        <button onclick="speakScore()">🔊 Speak Score</button>
-        <button onclick="startListening()">🎤 Voice Input</button>
-        <button onclick="resetGame()">Reset Game</button>
-
-        <p id="status"></p>
     </div>
 
     <script>
@@ -98,20 +155,15 @@
         }
 
         function loadGame() {
-            let teamADisplay = localStorage.getItem("teamA_display");
-            let teamBDisplay = localStorage.getItem("teamB_display");
-            document.getElementById("teamA").innerText = teamADisplay;
-            document.getElementById("teamB").innerText = teamBDisplay;
-            document.getElementById("btnTeamA").innerText = teamADisplay;
-            document.getElementById("btnTeamB").innerText = teamBDisplay;
+            document.getElementById("teamA").innerText = localStorage.getItem("teamA_display");
+            document.getElementById("teamB").innerText = localStorage.getItem("teamB_display");
             document.getElementById("scoreA").innerText = localStorage.getItem("scoreA");
             document.getElementById("scoreB").innerText = localStorage.getItem("scoreB");
         }
 
         function updateScore(team, points) {
             let key = team === "A" ? "scoreA" : "scoreB";
-            let currentScore = parseInt(localStorage.getItem(key)) || 0;
-            let newScore = Math.max(0, currentScore + points); // No negative scores
+            let newScore = Math.max(0, parseInt(localStorage.getItem(key)) + points);
             localStorage.setItem(key, newScore);
             document.getElementById(key).innerText = newScore;
         }
@@ -122,13 +174,10 @@
             let scoreA = parseInt(localStorage.getItem("scoreA")) || 0;
             let scoreB = parseInt(localStorage.getItem("scoreB")) || 0;
 
-            let firstTeam = scoreA >= scoreB ? teamA : teamB;
-            let firstScore = scoreA >= scoreB ? scoreA : scoreB;
-            let secondTeam = scoreA >= scoreB ? teamB : teamA;
-            let secondScore = scoreA >= scoreB ? scoreB : scoreA;
+            let [firstTeam, firstScore, secondTeam, secondScore] =
+                scoreA >= scoreB ? [teamA, scoreA, teamB, scoreB] : [teamB, scoreB, teamA, scoreA];
 
             let message = `${firstTeam} ${firstScore}, ${secondTeam} ${secondScore}`;
-
             let speech = new SpeechSynthesisUtterance(message);
             let voices = speechSynthesis.getVoices();
 
@@ -139,55 +188,12 @@
             speech.pitch = 1.1;
             speech.rate = 0.9;
             speech.lang = "en-GB";
-
             speechSynthesis.speak(speech);
         }
 
         function resetGame() {
             localStorage.clear();
             location.reload();
-        }
-
-        function startListening() {
-            if (!("webkitSpeechRecognition" in window)) {
-                alert("Speech recognition is not supported in your browser. Try using Chrome.");
-                return;
-            }
-
-            let recognition = new webkitSpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = "en-US";
-
-            recognition.onstart = function() {
-                document.getElementById("status").innerText = "Listening...";
-            };
-
-            recognition.onresult = function(event) {
-                let transcript = event.results[0][0].transcript.toLowerCase();
-                document.getElementById("status").innerText = `You said: "${transcript}"`;
-                processVoiceCommand(transcript);
-            };
-
-            recognition.onerror = function(event) {
-                document.getElementById("status").innerText = "Voice recognition error.";
-            };
-
-            recognition.start();
-        }
-
-        function processVoiceCommand(command) {
-            let teamA = localStorage.getItem("teamA");
-            let teamB = localStorage.getItem("teamB");
-
-            let points = extractNumber(command);
-            if (command.includes(teamA)) updateScore("A", points);
-            if (command.includes(teamB)) updateScore("B", points);
-        }
-
-        function extractNumber(str) {
-            let numbers = str.match(/\d+/);
-            return numbers ? parseInt(numbers[0]) : 1;
         }
     </script>
 
