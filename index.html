@@ -100,6 +100,13 @@
         </div>
 
         <div class="buttons">
+            <p><strong>Add/Subtract Points:</strong></p>
+            <button onclick="updateScore('A', 1)">+1 <span id="btnTeamA"></span></button>
+            <button onclick="updateScore('A', -1)">-1 <span id="btnTeamA"></span></button>
+            <button onclick="updateScore('B', 1)">+1 <span id="btnTeamB"></span></button>
+            <button onclick="updateScore('B', -1)">-1 <span id="btnTeamB"></span></button>
+
+            <br>
             <button onclick="speakScore()">🔊 Speak Score</button>
             <button onclick="startListening()">🎤 Voice Input</button>
             <button onclick="resetGame()">Reset Game</button>
@@ -179,10 +186,15 @@
         function processVoiceCommand(command) {
             let teamA = localStorage.getItem("teamA");
             let teamB = localStorage.getItem("teamB");
-
             let points = extractNumber(command);
-            if (command.includes(teamA)) updateScore("A", points);
-            if (command.includes(teamB)) updateScore("B", points);
+
+            if (command.includes("add") || command.includes("plus")) {
+                if (command.includes(teamA)) updateScore("A", points);
+                if (command.includes(teamB)) updateScore("B", points);
+            } else if (command.includes("subtract") || command.includes("minus") || command.includes("take away")) {
+                if (command.includes(teamA)) updateScore("A", -points);
+                if (command.includes(teamB)) updateScore("B", -points);
+            }
         }
 
         function extractNumber(str) {
@@ -193,22 +205,11 @@
         function speakScore() {
             let teamA = localStorage.getItem("teamA_display");
             let teamB = localStorage.getItem("teamB_display");
-            let scoreA = parseInt(localStorage.getItem("scoreA")) || 0;
-            let scoreB = parseInt(localStorage.getItem("scoreB")) || 0;
+            let scoreA = localStorage.getItem("scoreA");
+            let scoreB = localStorage.getItem("scoreB");
 
-            let [firstTeam, firstScore, secondTeam, secondScore] =
-                scoreA >= scoreB ? [teamA, scoreA, teamB, scoreB] : [teamB, scoreB, teamA, scoreA];
-
-            let message = `${firstTeam} ${firstScore}, ${secondTeam} ${secondScore}`;
+            let message = `${teamA} ${scoreA}, ${teamB} ${scoreB}`;
             let speech = new SpeechSynthesisUtterance(message);
-            let voices = speechSynthesis.getVoices();
-
-            speech.voice = voices.find(voice => voice.name.includes("Google UK English Female")) ||
-                           voices.find(voice => voice.lang.includes("en-GB")) ||
-                           voices[0];
-
-            speech.pitch = 1.1;
-            speech.rate = 0.9;
             speech.lang = "en-GB";
             speechSynthesis.speak(speech);
         }
