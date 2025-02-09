@@ -100,27 +100,6 @@
         </div>
 
         <div class="buttons">
-            <p><strong>Add Points:</strong></p>
-            <button onclick="updateScore('A', 1)">+1</button>
-            <button onclick="updateScore('A', 3)">+3</button>
-            <button onclick="updateScore('A', 6)">+6</button>
-            <button onclick="updateScore('A', 9)">+9</button>
-            <button onclick="updateScore('A', 12)">+12</button>
-
-            <p><strong>Subtract Points:</strong></p>
-            <button onclick="updateScore('A', -1)">-1</button>
-
-            <p><strong>Add Points:</strong></p>
-            <button onclick="updateScore('B', 1)">+1</button>
-            <button onclick="updateScore('B', 3)">+3</button>
-            <button onclick="updateScore('B', 6)">+6</button>
-            <button onclick="updateScore('B', 9)">+9</button>
-            <button onclick="updateScore('B', 12)">+12</button>
-
-            <p><strong>Subtract Points:</strong></p>
-            <button onclick="updateScore('B', -1)">-1</button>
-
-            <br>
             <button onclick="speakScore()">🔊 Speak Score</button>
             <button onclick="startListening()">🎤 Voice Input</button>
             <button onclick="resetGame()">Reset Game</button>
@@ -167,6 +146,48 @@
             let newScore = Math.max(0, parseInt(localStorage.getItem(key)) + points);
             localStorage.setItem(key, newScore);
             document.getElementById(key).innerText = newScore;
+        }
+
+        function startListening() {
+            if (!("webkitSpeechRecognition" in window)) {
+                alert("Speech recognition is not supported in your browser. Try using Chrome.");
+                return;
+            }
+
+            let recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = "en-US";
+
+            recognition.onstart = function() {
+                document.getElementById("status").innerText = "Listening...";
+            };
+
+            recognition.onresult = function(event) {
+                let transcript = event.results[0][0].transcript.toLowerCase();
+                document.getElementById("status").innerText = `You said: "${transcript}"`;
+                processVoiceCommand(transcript);
+            };
+
+            recognition.onerror = function(event) {
+                document.getElementById("status").innerText = "Voice recognition error.";
+            };
+
+            recognition.start();
+        }
+
+        function processVoiceCommand(command) {
+            let teamA = localStorage.getItem("teamA");
+            let teamB = localStorage.getItem("teamB");
+
+            let points = extractNumber(command);
+            if (command.includes(teamA)) updateScore("A", points);
+            if (command.includes(teamB)) updateScore("B", points);
+        }
+
+        function extractNumber(str) {
+            let numbers = str.match(/\d+/);
+            return numbers ? parseInt(numbers[0]) : 1;
         }
 
         function speakScore() {
