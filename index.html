@@ -95,16 +95,29 @@
         }
 
         function speakScore() {
-            let teamA = localStorage.getItem("teamA_display");
-            let teamB = localStorage.getItem("teamB_display");
-            let scoreA = localStorage.getItem("scoreA");
-            let scoreB = localStorage.getItem("scoreB");
-            let message = `${teamA} has ${scoreA} points, and ${teamB} has ${scoreB} points.`;
-            
-            let speech = new SpeechSynthesisUtterance(message);
-            speech.lang = "en-US";
-            speechSynthesis.speak(speech);
-        }
+    let teamA = localStorage.getItem("teamA_display");
+    let teamB = localStorage.getItem("teamB_display");
+    let scoreA = localStorage.getItem("scoreA");
+    let scoreB = localStorage.getItem("scoreB");
+    let message = `${teamA} has ${scoreA} points, and ${teamB} has ${scoreB} points.`;
+
+    let speech = new SpeechSynthesisUtterance(message);
+    
+    // Fetch available voices
+    let voices = speechSynthesis.getVoices();
+    
+    // Choose a British Female voice
+    speech.voice = voices.find(voice => voice.name.includes("Google UK English Female")) ||
+                   voices.find(voice => voice.name.includes("UK English")) ||
+                   voices[0]; // Fallback to default if unavailable
+
+    // Adjust tone & speed for a more natural sound
+    speech.pitch = 1.1;  // Slightly higher for a livelier tone
+    speech.rate = 0.9;   // Slightly slower for better enunciation
+
+    speech.lang = "en-GB"; // British English accent
+    speechSynthesis.speak(speech);
+}
 
         function resetGame() {
             localStorage.clear();
