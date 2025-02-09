@@ -49,27 +49,35 @@
             font-weight: bold;
         }
 
-        .buttons {
-            margin-top: 20px;
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .team-buttons {
+            text-align: center;
+            flex: 1;
         }
 
         button {
-            padding: 15px;
-            font-size: 1.5rem;
+            padding: 10px 15px;
+            font-size: 1.3rem;
             font-weight: bold;
             background: black;
             color: yellow;
-            border: 4px solid yellow;
+            border: 3px solid yellow;
             cursor: pointer;
             margin: 5px;
             border-radius: 8px;
             text-transform: uppercase;
+            width: 80%;
         }
 
         button:hover {
             background: yellow;
             color: black;
-            border: 4px solid black;
+            border: 3px solid black;
         }
 
         .hidden {
@@ -94,25 +102,31 @@
             <span id="teamA"></span>
             <span class="score" id="scoreA">0</span>
         </div>
+
         <div class="score-row">
             <span id="teamB"></span>
             <span class="score" id="scoreB">0</span>
         </div>
 
-        <div class="buttons">
-            <p><strong>Add/Subtract Points:</strong></p>
-            <button onclick="updateScore('A', 1)">+1 <span id="btnTeamA"></span></button>
-            <button onclick="updateScore('A', -1)">-1 <span id="btnTeamA"></span></button>
-            <button onclick="updateScore('B', 1)">+1 <span id="btnTeamB"></span></button>
-            <button onclick="updateScore('B', -1)">-1 <span id="btnTeamB"></span></button>
+        <!-- Buttons for each team -->
+        <div class="button-container">
+            <div class="team-buttons">
+                <button onclick="updateScore('A', 1)">+1 <span id="btnTeamA"></span></button>
+                <button onclick="updateScore('A', -1)">-1 <span id="btnTeamA"></span></button>
+            </div>
 
-            <br>
-            <button onclick="speakScore()">🔊 Speak Score</button>
-            <button onclick="startListening()">🎤 Voice Input</button>
-            <button onclick="resetGame()">Reset Game</button>
-
-            <p id="status"></p>
+            <div class="team-buttons">
+                <button onclick="updateScore('B', 1)">+1 <span id="btnTeamB"></span></button>
+                <button onclick="updateScore('B', -1)">-1 <span id="btnTeamB"></span></button>
+            </div>
         </div>
+
+        <br>
+        <button onclick="speakScore()">🔊 Speak Score</button>
+        <button onclick="startListening()">🎤 Voice Input</button>
+        <button onclick="resetGame()">Reset Game</button>
+
+        <p id="status"></p>
     </div>
 
     <script>
@@ -146,6 +160,8 @@
             document.getElementById("teamB").innerText = localStorage.getItem("teamB_display");
             document.getElementById("scoreA").innerText = localStorage.getItem("scoreA");
             document.getElementById("scoreB").innerText = localStorage.getItem("scoreB");
+            document.getElementById("btnTeamA").innerText = localStorage.getItem("teamA_display");
+            document.getElementById("btnTeamB").innerText = localStorage.getItem("teamB_display");
         }
 
         function updateScore(team, points) {
@@ -153,6 +169,18 @@
             let newScore = Math.max(0, parseInt(localStorage.getItem(key)) + points);
             localStorage.setItem(key, newScore);
             document.getElementById(key).innerText = newScore;
+        }
+
+        function speakScore() {
+            let teamA = localStorage.getItem("teamA_display");
+            let teamB = localStorage.getItem("teamB_display");
+            let scoreA = localStorage.getItem("scoreA");
+            let scoreB = localStorage.getItem("scoreB");
+
+            let message = `${teamA} ${scoreA}, ${teamB} ${scoreB}`;
+            let speech = new SpeechSynthesisUtterance(message);
+            speech.lang = "en-GB";
+            speechSynthesis.speak(speech);
         }
 
         function startListening() {
@@ -200,18 +228,6 @@
         function extractNumber(str) {
             let numbers = str.match(/\d+/);
             return numbers ? parseInt(numbers[0]) : 1;
-        }
-
-        function speakScore() {
-            let teamA = localStorage.getItem("teamA_display");
-            let teamB = localStorage.getItem("teamB_display");
-            let scoreA = localStorage.getItem("scoreA");
-            let scoreB = localStorage.getItem("scoreB");
-
-            let message = `${teamA} ${scoreA}, ${teamB} ${scoreB}`;
-            let speech = new SpeechSynthesisUtterance(message);
-            speech.lang = "en-GB";
-            speechSynthesis.speak(speech);
         }
 
         function resetGame() {
